@@ -126,7 +126,7 @@ function HandleKeyPress(key) {
         // A key, left arrow (Left)
         if(key.keyCode === 65 || key.keyCode === 37) { 
             direction = DIRECTION.LEFT;
-            if (!HittingTheWall() && !CheckForVerticalCollision()) {
+            if (!HittingTheWall() && !CheckForVerticalCollision() && !CheckForHorizontalCollision()) {
                 DeleteTetromino();
                 startX--;
                 DrawTetromino();
@@ -134,7 +134,7 @@ function HandleKeyPress(key) {
         // D key, right arrow (Right)
         } else if (key.keyCode === 68 || key.keyCode === 39) { 
             direction = DIRECTION.RIGHT;
-            if (!HittingTheWall() && !CheckForVerticalCollision()) {       
+            if (!HittingTheWall() && !CheckForVerticalCollision() && !CheckForHorizontalCollision()) {       
                 DeleteTetromino();
                 startX++;
                 DrawTetromino();  
@@ -278,6 +278,8 @@ function CheckForVerticalCollision() {
 function CheckForHorizontalCollision() {
     let tetrominoCopy = curTetromino;
     let collision = false;
+
+    // Cycle through the tetromino squares
     for (let i = 0; i < tetrominoCopy.length; i++) {
         let square = tetrominoCopy[i];
         let x = square[0] + startX;
@@ -289,6 +291,8 @@ function CheckForHorizontalCollision() {
             x++;
         }
         var stoppedShapeVal = stoppedShapeArray[x][y];
+
+        // If it is a string we know there is a stopped square there
         if (typeof stoppedShapeVal === "string") {
             collision = true;
             break;

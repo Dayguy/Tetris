@@ -4,4 +4,6 @@ JavaScript Tetris game created following Derek Banas tutorial:
 
 TO DO:
     Fix game over setting to trigger at very top of the game board
-    Fix bug where left motion overwrites collision piece
+    
+    Add keybindings for arrow keys - DONE
+    Fix bug where horizontal motion overwrites collision piece -- FIXED
