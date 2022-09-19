@@ -319,7 +319,7 @@ function CheckForCompletedRows() {
         }
     }
     if (rowsToDelete > 0) {
-        score += 10;
+        score = rowsToDelete * 10;
         ctx.fillStyle = "white";
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
