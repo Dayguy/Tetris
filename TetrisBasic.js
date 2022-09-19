@@ -123,23 +123,23 @@ function DrawTetromino() {
 
 function HandleKeyPress(key) {
     if(winOrLose != "Game Over") {
-        if(key.keyCode === 65) { // A key
+        if(key.keyCode === 65) { // A key (Left)
             direction = DIRECTION.LEFT;
             if (!HittingTheWall() && !CheckForVerticalCollision()) {
                 DeleteTetromino();
                 startX--;
                 DrawTetromino();
             }
-        } else if (key.keyCode === 68) { // D key
+        } else if (key.keyCode === 68) { // D key (Right)
             direction = DIRECTION.RIGHT;
             if (!HittingTheWall() && !CheckForVerticalCollision()) {       
                 DeleteTetromino();
                 startX++;
                 DrawTetromino();  
             }
-        } else if (key.keyCode === 83) { // S key
+        } else if (key.keyCode === 83) { // S key (Down)
             MoveTetrominoDown();
-        } else if (key.keycode === 69) {
+        } else if (key.keyCode === 69) { // E key (Rotate)
             RotateTetromino();
         }
     }
@@ -357,11 +357,16 @@ function MoveAllRowsDown (rowsToDelete, startOfDeletion) {
 }
 
 function RotateTetromino () {
-    let newRotation = new Array();
+
+    let newRotation = [];
     let tetrominoCopy = curTetromino;
     let curTetrominoBU;
+
     for (let i = 0; i < tetrominoCopy.length; i++) {
+
+        // Backup tetromino in case of errors
         curTetrominoBU = [...curTetromino];
+
         let x = tetrominoCopy[i][0];
         let y = tetrominoCopy[i][1];
         let newX = (GetLastSquareX() - y);
@@ -369,16 +374,19 @@ function RotateTetromino () {
         newRotation.push([newX, newY]);
     }
     DeleteTetromino();
+
+    // Try drawing tetromino with rotation coordinates
     try {
         curTetromino = newRotation;
-        DrawTetrimino();
+        DrawTetromino();
     } 
+    // If there is an error draw backup instead
     catch (e) {
         if (e instanceof TypeError) {
-            curTetromino= curTetrominoBU;
+            curTetromino = curTetrominoBU;
             DeleteTetromino();
             DrawTetromino();
-        }
+         }
     }
 }
 
@@ -388,8 +396,7 @@ function GetLastSquareX() {
         let square = curTetromino[i];
         if (square[0] > lastX) {
             lastX = square[0];
-        }
-            
+        }   
     }
     return lastX;
 }
