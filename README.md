@@ -6,6 +6,7 @@ TO DO:
     Fix game over setting to trigger at very top of the game board
     Add check collision for rotation too close to edges.
     
+    Added emaojis to output messages (just because) -- DONE
     Fix bonus message, clear after time period -- FIXED
     Add keybindings for arrow keys - DONE
     Fix bug where horizontal motion overwrites collision piece -- FIXED

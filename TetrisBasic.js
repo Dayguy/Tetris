@@ -119,7 +119,7 @@ function SetStatus(status) {
     if (status === "Playing...") {
         ctx.fillStyle = "green";
     } else if (status === "Game Over!") {
-        SetMessage("Sorry.");
+        SetMessage("Sorry");
         ctx.fillStyle = "#DC143C";
     } else {
         ctx.fillStyle = "black";
@@ -128,6 +128,8 @@ function SetStatus(status) {
 }
 
 function SetMessage(message) {
+
+    let emoji;
 
     // Clear existing message
     ctx.clearRect(300, 296, 161, 28);
@@ -138,7 +140,12 @@ function SetMessage(message) {
     } else {
         ctx.fillStyle = "black";
     }
-    ctx.fillText(message, 310, 316);
+    if (message === "Sorry") {
+        emoji = "\u{1F641}";
+    } else {
+        emoji = "\u{1F600}";
+    }
+    ctx.fillText(emoji + message, 310, 316);
 }
 
 function DrawTetrisLogo() {
