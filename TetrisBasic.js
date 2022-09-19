@@ -9,7 +9,7 @@ let startY = 0;
 
 let score = 0;
 let level = 1;
-let winOrLose = "Playing";
+let winOrLose = "Playing...";
 let tetrisLogo;
 
 let stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
@@ -78,16 +78,17 @@ function SetupCanvas() {
 
     ctx.fillText("Score", 300, 98);
     ctx.strokeRect(300, 107, 161, 24);
-    ctx.fillText(score.toString(), 310, 127);
+    ctx.fillText(score.toString(), 310, 125);
 
-    ctx.fillText("Level", 300, 157);
+    ctx.fillText("Level", 300, 160);
     ctx.strokeRect(300, 171, 161, 24);
-    ctx.fillText(level.toString(), 310, 190);
+    ctx.fillText(level.toString(), 310, 189);
 
     ctx.fillText("Status", 300, 221);
-    ctx.fillText(winOrLose, 310, 261);
+    SetStatus(winOrLose);
     ctx.strokeRect(300, 232, 161, 95);
 
+    ctx.fillStyle = "black";
     ctx.fillText("CONTROLS", 300, 354);
     ctx.strokeRect(300, 366, 161, 104);
     ctx.font = "16px Arial";
@@ -103,6 +104,23 @@ function SetupCanvas() {
 
     CreateCoordinateArray();
     DrawTetromino();
+}
+
+function SetStatus(message) {
+    if (message === "Playing...") {
+        ctx.fillStyle = "green";
+    } else if (message === "Game Over!" || message === "Bonus Points!") {
+        ctx.fillStyle = "#DC143C";
+    } else {
+        ctx.fillStyle = "black";
+    }
+
+    if (message === "Bonus Points!") {
+        ctx.filStyle = "#DC143C";
+        ctx.fillText(message, 310, 275);
+    } else {
+        ctx.fillText(message, 310, 255);
+    }
 }
 
 function DrawTetrisLogo() {
@@ -122,7 +140,7 @@ function DrawTetromino() {
 }
 
 function HandleKeyPress(key) {
-    if(winOrLose != "Game Over") {
+    if(winOrLose != "Game Over!") {
         // A key, left arrow (Left)
         if(key.keyCode === 65 || key.keyCode === 37) { 
             direction = DIRECTION.LEFT;
@@ -159,7 +177,7 @@ function MoveTetrominoDown() {
 }
 
 window.setInterval(function() {
-    if(winOrLose != "Game Over") {
+    if (winOrLose != "Game Over!") {
         MoveTetrominoDown();
     }
 }, 1000);
@@ -253,11 +271,10 @@ function CheckForVerticalCollision() {
     if (collision) {
         // This contols the top of the board
         if (startY <= 2) {
-            winOrLose = "Game Over";
+            winOrLose = "Game Over!";
             ctx.fillStyle = "white";
             ctx.fillRect(310, 242, 140, 30);
-            ctx.fillStyle = "black";
-            ctx.fillText(winOrLose, 310, 261);
+            SetStatus(winOrLose);
         } else {
             for (let i = 0; i < tetrominoCopy.length; i++) {
                 let square = tetrominoCopy[i];
@@ -329,18 +346,19 @@ function CheckForCompletedRows() {
     }
     if (rowsToDelete > 0) {
 
-        // 100 point bonus for 4 row combo
-        if (rowsToDelete === 4) {
-            score += 100;
-        } else {
-            score += rowsToDelete * 10;
-        }
-        
         ctx.fillStyle = "white";
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
-        ctx.fillText(score.toString(), 310, 127);
+        ctx.fillText(score.toString(), 310, 125);
         MoveAllRowsDown(rowsToDelete, startOfDeletion);
+
+        // 100 point bonus for 4 row combo
+        if (rowsToDelete === 4) {
+            score += 100;
+            SetStatus("Bonus Points!");
+        } else {
+            score += rowsToDelete * 10;
+        }
     }
 
 }
