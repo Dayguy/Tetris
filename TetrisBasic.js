@@ -119,7 +119,7 @@ function SetStatus(status) {
     if (status === "Playing...") {
         ctx.fillStyle = "green";
     } else if (status === "Game Over!") {
-        SetMessage("Sorry");
+        SetMessage("Sorry!");
         ctx.fillStyle = "#DC143C";
     } else {
         ctx.fillStyle = "black";
@@ -129,21 +129,26 @@ function SetStatus(status) {
 
 function SetMessage(message) {
 
-    let emoji;
+    // Default to smiley
+    let emoji = "\u{1F600}";;
 
     // Clear existing message
     ctx.clearRect(300, 296, 161, 28);
     ctx.strokeRect(300, 296, 161, 28);
 
-    if (message === "Bonus Points!") {
+    if (message === "Bonus Points") {
         ctx.fillStyle = "#DC143C";
+        emoji = "\u{1F4A5}";
     } else {
         ctx.fillStyle = "black";
     }
-    if (message === "Sorry") {
+
+    if (message === "Sorry!") {
         emoji = "\u{1F641}";
-    } else {
-        emoji = "\u{1F600}";
+    }
+    // Print emoji + message to the message box
+    if (message === "Bonus Points") {
+        ctx.fillText(emoji + message + emoji, 310, 316); 
     }
     ctx.fillText(emoji + message, 310, 316);
 }
@@ -380,7 +385,7 @@ function CheckForCompletedRows() {
         // 100 point bonus for 4 row combo
         if (rowsToDelete === 4) {
             score += 100;
-            SetStatus("Bonus Points!");
+            SetStatus("Bonus Points");
         } else {
             score += rowsToDelete * 10;
         }
@@ -459,4 +464,3 @@ function GetLastSquareX() {
     }
     return lastX;
 }
-
