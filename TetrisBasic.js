@@ -54,7 +54,7 @@ function CreateCoordinateArray() {
 
 function SetupCanvas() {
     canvas = document.getElementById("my-canvas");
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext("2d");
     canvas.width = 936;
     canvas.height = 956;
 
@@ -84,9 +84,13 @@ function SetupCanvas() {
     ctx.strokeRect(300, 171, 161, 24);
     ctx.fillText(level.toString(), 310, 189);
 
+    ctx.fillText("Message", 300, 284);
+    ctx.strokeRect(300, 296, 161, 28);
+    SetMessage("Good Luck!");
+
     ctx.fillText("Status", 300, 221);
+    ctx.strokeRect(300, 232, 161, 28);
     SetStatus(winOrLose);
-    ctx.strokeRect(300, 232, 161, 95);
 
     ctx.fillStyle = "black";
     ctx.fillText("CONTROLS", 300, 354);
@@ -106,21 +110,35 @@ function SetupCanvas() {
     DrawTetromino();
 }
 
-function SetStatus(message) {
-    if (message === "Playing...") {
+function SetStatus(status) {
+    
+    // Clear existing status
+    ctx.clearRect(300, 232, 161, 28);
+    ctx.strokeRect(300, 232, 161, 28);
+
+    if (status === "Playing...") {
         ctx.fillStyle = "green";
-    } else if (message === "Game Over!" || message === "Bonus Points!") {
+    } else if (status === "Game Over!") {
+        SetMessage("Sorry.");
         ctx.fillStyle = "#DC143C";
     } else {
         ctx.fillStyle = "black";
     }
+    ctx.fillText(status, 310, 252);
+}
+
+function SetMessage(message) {
+
+    // Clear existing message
+    ctx.clearRect(300, 296, 161, 28);
+    ctx.strokeRect(300, 296, 161, 28);
 
     if (message === "Bonus Points!") {
-        ctx.filStyle = "#DC143C";
-        ctx.fillText(message, 310, 275);
+        ctx.fillStyle = "#DC143C";
     } else {
-        ctx.fillText(message, 310, 255);
+        ctx.fillStyle = "black";
     }
+    ctx.fillText(message, 310, 316);
 }
 
 function DrawTetrisLogo() {
