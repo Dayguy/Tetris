@@ -74,7 +74,7 @@ function SetupCanvas() {
     }
 
     ctx.fillStyle = "black";
-    ctx.font = "21px Arial";
+    ctx.font = "16px Arial";
 
     ctx.fillText("Score", 300, 98);
     ctx.strokeRect(300, 107, 161, 24);
@@ -90,11 +90,11 @@ function SetupCanvas() {
 
     ctx.fillText("CONTROLS", 300, 354);
     ctx.strokeRect(300, 366, 161, 104);
-    ctx.font = "19px Arial";
-    ctx.fillText("A : Move Left", 310, 388);
-    ctx.fillText("D : Move Right", 310, 413);
-    ctx.fillText("S : Move Down", 310, 438);
-    ctx.fillText("E : Rotate Right", 310, 463);
+    ctx.font = "16px Arial";
+    ctx.fillText("A / \u21E6 : Move Left", 310, 388);
+    ctx.fillText("D / \u21E8 : Move Right", 310, 413);
+    ctx.fillText("S / \u21E9 : Move Down", 310, 438);
+    ctx.fillText("E / \u21E7 : Rotate Right", 310, 463);
 
     document.addEventListener("keydown", HandleKeyPress);
 
@@ -123,23 +123,27 @@ function DrawTetromino() {
 
 function HandleKeyPress(key) {
     if(winOrLose != "Game Over") {
-        if(key.keyCode === 65) { // A key (Left)
+        // A key, left arrow (Left)
+        if(key.keyCode === 65 || key.keyCode === 37) { 
             direction = DIRECTION.LEFT;
             if (!HittingTheWall() && !CheckForVerticalCollision()) {
                 DeleteTetromino();
                 startX--;
                 DrawTetromino();
             }
-        } else if (key.keyCode === 68) { // D key (Right)
+        // D key, right arrow (Right)
+        } else if (key.keyCode === 68 || key.keyCode === 39) { 
             direction = DIRECTION.RIGHT;
             if (!HittingTheWall() && !CheckForVerticalCollision()) {       
                 DeleteTetromino();
                 startX++;
                 DrawTetromino();  
             }
-        } else if (key.keyCode === 83) { // S key (Down)
+        // S key, down arrow (Down)
+        } else if (key.keyCode === 83 || key.keyCode === 40) { 
             MoveTetrominoDown();
-        } else if (key.keyCode === 69) { // E key (Rotate)
+        // E key, up arrow (Rotate)
+        } else if (key.keyCode === 69 || key.keyCode === 38) { 
             RotateTetromino();
         }
     }
