@@ -18,7 +18,7 @@ let coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fil
 let curTetromino = [[1,0], [0,1], [1,1], [2,1]];
 
 let tetrominos = [];
-let tetrominoColors = ["purple", "cyan", "blue", "yellow", "orange", "green", "red"];
+let tetrominoColors = ["purple", "#00CED1", "#6495ED", "#FEDC56", "orange", "green", "#DC143C"];
 let curTetrominoColor;
 
 let gameBoardArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
@@ -84,7 +84,7 @@ function SetupCanvas() {
     ctx.strokeRect(300, 171, 161, 24);
     ctx.fillText(level.toString(), 310, 190);
 
-    ctx.fillText("WIN / LOSE", 300, 221);
+    ctx.fillText("Status", 300, 221);
     ctx.fillText(winOrLose, 310, 261);
     ctx.strokeRect(300, 232, 161, 95);
 
@@ -328,7 +328,14 @@ function CheckForCompletedRows() {
         }
     }
     if (rowsToDelete > 0) {
-        score += rowsToDelete * 10;
+
+        // 100 point bonus for 4 row combo
+        if (rowsToDelete === 4) {
+            score += 100;
+        } else {
+            score += rowsToDelete * 10;
+        }
+        
         ctx.fillStyle = "white";
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
