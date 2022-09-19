@@ -151,7 +151,7 @@ function HandleKeyPress(key) {
 
 function MoveTetrominoDown() {
     direction = DIRECTION.DOWN;
-    if (!CheckForVerticalCollision()) {
+    if (!CheckForVerticalCollision() && !CheckForHorizontalCollision()) {
         DeleteTetromino();
         startY++;
         DrawTetromino();  
@@ -251,6 +251,7 @@ function CheckForVerticalCollision() {
     }
   
     if (collision) {
+        // This contols the top of the board
         if (startY <= 2) {
             winOrLose = "Game Over";
             ctx.fillStyle = "white";
@@ -327,7 +328,7 @@ function CheckForCompletedRows() {
         }
     }
     if (rowsToDelete > 0) {
-        score = rowsToDelete * 10;
+        score += rowsToDelete * 10;
         ctx.fillStyle = "white";
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
