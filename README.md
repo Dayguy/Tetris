@@ -5,6 +5,7 @@ JavaScript Tetris game created following Derek Banas tutorial:
 TO DO:
     Fix game over setting to trigger at very top of the game board
     Add check collision for rotation too close to edges.
+    Create array of messages to loop over, rather than toggling two.
     
     Added emaojis to output messages (just because) -- DONE
     Fix bonus message, clear after time period -- FIXED

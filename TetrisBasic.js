@@ -30,6 +30,7 @@ let DIRECTION = {
     RIGHT: 3
 };
 let direction;
+let msgToggle = 0;
 
 class Coordinates {
     constructor(x,y) {
@@ -86,7 +87,7 @@ function SetupCanvas() {
 
     ctx.fillText("Message", 300, 284);
     ctx.strokeRect(300, 296, 161, 28);
-    SetMessage("Good Luck!");
+    SetMessage("Good luck!");
 
     ctx.fillText("Status", 300, 221);
     ctx.strokeRect(300, 232, 161, 28);
@@ -130,8 +131,18 @@ function SetStatus(status) {
 function SetMessage(message) {
 
     // Default to smiley
-    let emoji = "\u{1F600}";;
+    let emoji = "\u{1F600}";
 
+    if (message != "Bonus Points" && message != "Good luck!" && message != "Sorry!") {
+        if (msgToggle === 0) {
+            message = "Well played!";
+            msgToggle = 1;
+        } else {
+            message = "Nicely done!";
+            msgToggle = 0;
+        }
+    }
+    
     // Clear existing message
     ctx.clearRect(300, 296, 161, 28);
     ctx.strokeRect(300, 296, 161, 28);
@@ -148,9 +159,10 @@ function SetMessage(message) {
     }
     // Print emoji + message to the message box
     if (message === "Bonus Points") {
-        ctx.fillText(emoji + message + emoji, 310, 316); 
-    }
-    ctx.fillText(emoji + message, 310, 316);
+        ctx.fillText(emoji + message + " " + emoji, 310, 316);
+    } else {
+        ctx.fillText(emoji + message, 310, 316);
+    }  
 }
 
 function DrawTetrisLogo() {
@@ -376,19 +388,20 @@ function CheckForCompletedRows() {
     }
     if (rowsToDelete > 0) {
 
+        // 100 point bonus for 4 row combo
+        if (rowsToDelete === 4) {
+            score += 100;
+            SetMessage("Bonus Points");
+        } else {
+            score += rowsToDelete * 10;
+            SetMessage();
+        }
         ctx.fillStyle = "white";
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
         ctx.fillText(score.toString(), 310, 125);
-        MoveAllRowsDown(rowsToDelete, startOfDeletion);
 
-        // 100 point bonus for 4 row combo
-        if (rowsToDelete === 4) {
-            score += 100;
-            SetStatus("Bonus Points");
-        } else {
-            score += rowsToDelete * 10;
-        }
+        MoveAllRowsDown(rowsToDelete, startOfDeletion);        
     }
 
 }
