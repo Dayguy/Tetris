@@ -1,10 +1,9 @@
-let canvas;
-let ctx;
+let canvas, ctx;
 let gBArrayHeight = 20;
 let gBArrayWidth = 12;
 
 // Starting point for Tetromino
-let startX = 4;
+let startX = 4
 let startY = 0;
 
 let score = 0;
@@ -13,7 +12,6 @@ let winOrLose = "Playing...";
 let tetrisLogo;
 
 let stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
-
 let coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 let curTetromino = [[1,0], [0,1], [1,1], [2,1]];
 
