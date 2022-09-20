@@ -396,8 +396,9 @@ function CheckForCompletedRows() {
             SetMessage();
         }
         ctx.fillStyle = "white";
-        ctx.fillRect(310, 109, 140, 19);
+        ctx.fillRect(300, 107, 110, 24);
         ctx.fillStyle = "black";
+        ctx.strokeRect(300, 107, 110, 24);
         ctx.fillText(score.toString(), 310, 125);
 
         MoveAllRowsDown(rowsToDelete, startOfDeletion);        
