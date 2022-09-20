@@ -77,29 +77,45 @@ function SetupCanvas() {
     ctx.fillStyle = "black";
     ctx.font = "16px Arial";
 
-    ctx.fillText("Score", 300, 98);
-    ctx.strokeRect(300, 107, 110, 24);
-    ctx.fillText(score.toString(), 310, 125);
+    ctx.fillText("Score", 300, 88);
+    ctx.strokeRect(300, 97, 110, 24);
+    ctx.fillText(score.toString(), 310, 115);
 
-    ctx.fillText("Level", 420, 98);
-    ctx.strokeRect(420, 107, 42, 24);
-    ctx.fillText(level.toString(), 430, 125);
+    ctx.fillText("Level", 420, 88);
+    ctx.strokeRect(420, 97, 42, 24);
+    ctx.fillText(level.toString(), 436, 115);
 
-    ctx.fillText("Message", 300, 284);
-    ctx.strokeRect(300, 296, 161, 28);
+    ctx.fillText("Theme", 300, 147);
+    ctx.strokeRect(300, 156, 161, 28);
+
+    // Light selection circle
+    ctx.beginPath();
+    ctx.arc(322, 170, 6, 300, 157, 1);
+    ctx.stroke();
+    ctx.fillText("Light", 332, 175);
+
+    // Dark selection circle
+    ctx.beginPath();
+    ctx.arc(395, 170, 6, 300, 157, 1);
+    ctx.stroke();
+    ctx.fillText("Dark", 405, 175);
+
+
+    ctx.fillText("Message", 300, 270);
+    ctx.strokeRect(300, 280, 161, 28);
     SetMessage("Good luck!");
 
-    ctx.fillText("Status", 300, 221);
-    ctx.strokeRect(300, 232, 161, 28);
+    ctx.fillText("Status", 300, 210);
+    ctx.strokeRect(300, 220, 161, 28);
     SetStatus(winOrLose);
 
     ctx.fillStyle = "black";
-    ctx.fillText("Controls", 300, 354);
-    ctx.strokeRect(300, 366, 161, 104);
-    ctx.fillText("A / \u21E6 : Move Left", 310, 388);
-    ctx.fillText("D / \u21E8 : Move Right", 310, 413);
-    ctx.fillText("S / \u21E9 : Move Down", 310, 438);
-    ctx.fillText("E / \u21E7 : Rotate Right", 310, 463);
+    ctx.fillText("Controls", 300, 330);
+    ctx.strokeRect(300, 340, 161, 130);
+    ctx.fillText("A / \u21E6 : Move Left", 310, 362);
+    ctx.fillText("D / \u21E8 : Move Right", 310, 382);
+    ctx.fillText("S / \u21E9 : Move Down", 310, 402);
+    ctx.fillText("E / \u21E7 : Rotate Right", 310, 422);
 
     document.addEventListener("keydown", HandleKeyPress);
 
@@ -113,8 +129,7 @@ function SetupCanvas() {
 function SetStatus(status) {
     
     // Clear existing status
-    ctx.clearRect(300, 232, 161, 28);
-    ctx.strokeRect(300, 232, 161, 28);
+    ctx.clearRect(300, 280, 160, 0);
 
     if (status === "Playing...") {
         ctx.fillStyle = "green";
@@ -124,7 +139,7 @@ function SetStatus(status) {
     } else {
         ctx.fillStyle = "black";
     }
-    ctx.fillText(status, 310, 252);
+    ctx.fillText(status, 310, 240);
 }
 
 function SetMessage(message) {
@@ -143,8 +158,7 @@ function SetMessage(message) {
     }
     
     // Clear existing message
-    ctx.clearRect(300, 296, 161, 28);
-    ctx.strokeRect(300, 296, 161, 28);
+    // ctx.clearRect(300, 280, 160, 0);
 
     if (message === "Bonus Points") {
         ctx.fillStyle = "#DC143C";
@@ -158,9 +172,9 @@ function SetMessage(message) {
     }
     // Print emoji + message to the message box
     if (message === "Bonus Points") {
-        ctx.fillText(emoji + message + " " + emoji, 310, 316);
+        ctx.fillText(emoji + message + " " + emoji, 310, 300);
     } else {
-        ctx.fillText(emoji + message, 310, 316);
+        ctx.fillText(emoji + message, 310, 300);
     }  
 }
 
