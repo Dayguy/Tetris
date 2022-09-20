@@ -78,12 +78,12 @@ function SetupCanvas() {
     ctx.font = "16px Arial";
 
     ctx.fillText("Score", 300, 98);
-    ctx.strokeRect(300, 107, 161, 24);
+    ctx.strokeRect(300, 107, 110, 24);
     ctx.fillText(score.toString(), 310, 125);
 
-    ctx.fillText("Level", 300, 160);
-    ctx.strokeRect(300, 171, 161, 24);
-    ctx.fillText(level.toString(), 310, 189);
+    ctx.fillText("Level", 420, 98);
+    ctx.strokeRect(420, 107, 42, 24);
+    ctx.fillText(level.toString(), 430, 125);
 
     ctx.fillText("Message", 300, 284);
     ctx.strokeRect(300, 296, 161, 28);
@@ -94,9 +94,8 @@ function SetupCanvas() {
     SetStatus(winOrLose);
 
     ctx.fillStyle = "black";
-    ctx.fillText("CONTROLS", 300, 354);
+    ctx.fillText("Controls", 300, 354);
     ctx.strokeRect(300, 366, 161, 104);
-    ctx.font = "16px Arial";
     ctx.fillText("A / \u21E6 : Move Left", 310, 388);
     ctx.fillText("D / \u21E8 : Move Right", 310, 413);
     ctx.fillText("S / \u21E9 : Move Down", 310, 438);
@@ -403,7 +402,6 @@ function CheckForCompletedRows() {
 
         MoveAllRowsDown(rowsToDelete, startOfDeletion);        
     }
-
 }
 
 function MoveAllRowsDown (rowsToDelete, startOfDeletion) {
