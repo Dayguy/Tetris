@@ -1,36 +1,39 @@
-let canvas;
-let ctx;
-let gBArrayHeight = 20;
-let gBArrayWidth = 12;
+var canvas;
+var ctx;
+var gBArrayHeight = 20;
+var gBArrayWidth = 12;
 
 // Starting point for Tetromino
-let startX = 4;
-let startY = 0;
+var startX = 4;
+var startY = 0;
 
-let score = 0;
-let level = 1;
-let winOrLose = "Playing...";
-let tetrisLogo;
+var score = 0;
+var level = 1;
+var winOrLose = "Playing...";
+var tetrisLogo;
 
-let stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
+var stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 
-let coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
-let curTetromino = [[1,0], [0,1], [1,1], [2,1]];
+var coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
+var curTetromino = [[1,0], [0,1], [1,1], [2,1]];
 
-let tetrominos = [];
-let tetrominoColors = ["purple", "#00CED1", "#6495ED", "#FEDC56", "orange", "green", "#DC143C"];
-let curTetrominoColor;
+var tetrominos = [];
+var tetrominoColors = ["purple", "#00CED1", "#6495ED", "#FEDC56", "orange", "green", "#DC143C"];
+var curTetrominoColor;
 
-let gameBoardArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
+var gameBoardArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 
-let DIRECTION = {
+var selectionCircles = [];
+
+
+var DIRECTION = {
     IDLE: 0,
     DOWN: 1,
     LEFT: 2,
     RIGHT: 3
 };
-let direction;
-let msgToggle = 0;
+var direction;
+var msgToggle = 0;
 
 class Coordinates {
     constructor(x,y) {
@@ -54,12 +57,18 @@ function CreateCoordinateArray() {
 }
 
 function SetupCanvas() {
+
     canvas = document.getElementById("my-canvas");
-    ctx = canvas.getContext("2d");
+    canvas.addEventListener("click", CheckSelection);
+
     canvas.width = 936;
     canvas.height = 956;
 
+    ctx = canvas.getContext("2d");
+    ctx.font = "14px Arial";
     ctx.scale(2,2);
+
+    
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -69,14 +78,14 @@ function SetupCanvas() {
 
     tetrisLogo = new Image(161, 54);
     tetrisLogo.src = "tetrislogo.png";
-    // tetrisLogo.onLoad = DrawTetrisLogo();
-    window.onload = function() { // Original line above wouldn't work - not sure why???
+
+   window.onload = function() { // Original line above wouldn't work - not sure why???
         DrawTetrisLogo();
     }
 
     ctx.fillStyle = "black";
-    ctx.font = "16px Arial";
 
+    // Score & Level boxes
     ctx.fillText("Score", 300, 88);
     ctx.strokeRect(300, 97, 110, 24);
     ctx.fillText(score.toString(), 310, 115);
@@ -85,26 +94,19 @@ function SetupCanvas() {
     ctx.strokeRect(420, 97, 42, 24);
     ctx.fillText(level.toString(), 436, 115);
 
+    // Theme selection
     ctx.fillText("Theme", 300, 147);
     ctx.strokeRect(300, 156, 161, 28);
+    selectionCircles[selectionCircles.length] = CreateSelectionCircle({ x: 322, y: 170, label: "Light" });
+    selectionCircles[selectionCircles.length] = CreateSelectionCircle({ x: 395, y: 170, label: "Dark" });
+    selectionCircles.forEach(function(circle) { circle.draw(); });
 
-    // Light selection circle
-    ctx.beginPath();
-    ctx.arc(322, 170, 6, 300, 157, 1);
-    ctx.stroke();
-    ctx.fillText("Light", 332, 175);
-
-    // Dark selection circle
-    ctx.beginPath();
-    ctx.arc(395, 170, 6, 300, 157, 1);
-    ctx.stroke();
-    ctx.fillText("Dark", 405, 175);
-
-
+    // Message box
     ctx.fillText("Message", 300, 270);
     ctx.strokeRect(300, 280, 161, 28);
     SetMessage("Good luck!");
 
+    // Status box
     ctx.fillText("Status", 300, 210);
     ctx.strokeRect(300, 220, 161, 28);
     SetStatus(winOrLose);
@@ -126,10 +128,57 @@ function SetupCanvas() {
     DrawTetromino();
 }
 
+function CheckSelection(e) {
+
+    let canvCoordinates = canvas.getBoundingClientRect(); 
+
+    let circX, circY, clickInfo = [];
+    let clickX, clickY;
+    let x, y;
+    let diffX, diffY;
+    let startLength;
+    let distance;
+
+    if (clickInfo.length == 2) { // after 2 clicks clear array
+      clickInfo.length = 0;
+    }
+
+    startLength = clickInfo.length;
+    
+    // Loop over selection circles
+    for (let i = 0; i < selectionCircles.length; i++) {
+
+        clickX = (e.pageX - canvCoordinates.x) / 2;
+        clickY = (e.pageY - canvCoordinates.y) / 2;
+
+        // Get the differences in position
+        diffX = Math.abs(clickX - selectionCircles[i].x);  // console.log("Diff X: " + diffX);
+        diffY = Math.abs(clickY - selectionCircles[i].y);  // console.log("Diff Y: " + diffY);
+
+        // // Calculate distance
+        //distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+
+        if (diffX <= 6) {
+            clickInfo[clickInfo.length] = {
+                label: selectionCircles[i].label,
+                circX: selectionCircles[i].x,
+                circY: selectionCircles[i].y,
+                xPos: x,
+                yPos: y
+            };
+        }
+
+        if (clickInfo.length != startLength) {
+            console.log("Clicked: " + clickInfo[clickInfo.length - 1].label);
+        }
+
+    }
+}
+
 function SetStatus(status) {
     
     // Clear existing status
-    ctx.clearRect(300, 280, 160, 0);
+    ctx.clearRect(300, 220, 161, 28);
 
     if (status === "Playing...") {
         ctx.fillStyle = "green";
@@ -139,7 +188,25 @@ function SetStatus(status) {
     } else {
         ctx.fillStyle = "black";
     }
+    ctx.beginPath();
     ctx.fillText(status, 310, 240);
+}
+
+function CreateSelectionCircle (c) {
+    c.radius = 6;
+    c.draw = function() {
+       ctx.beginPath();
+       ctx.arc(c.x, c.y, c.radius, 300, 157, 2 * Math.PI, false);
+       ctx.fillStyle = 'white';
+       ctx.fill();
+       ctx.lineWidth = 1;
+       ctx.strokeStyle = 'black';
+       ctx.stroke();
+       ctx.fillStyle = "black";
+       ctx.font = "14px Arial";
+       ctx.fillText(c.label, c.x + 10, c.y + 5);
+     };
+   return c;
 }
 
 function SetMessage(message) {
@@ -158,7 +225,7 @@ function SetMessage(message) {
     }
     
     // Clear existing message
-    // ctx.clearRect(300, 280, 160, 0);
+    ctx.clearRect(300, 280, 161, 28);
 
     if (message === "Bonus Points") {
         ctx.fillStyle = "#DC143C";
@@ -170,6 +237,8 @@ function SetMessage(message) {
     if (message === "Sorry!") {
         emoji = "\u{1F641}";
     }
+
+    ctx.beginPath();
     // Print emoji + message to the message box
     if (message === "Bonus Points") {
         ctx.fillText(emoji + message + " " + emoji, 310, 300);
@@ -328,7 +397,6 @@ function CheckForVerticalCollision() {
         if (startY <= 2) {
             winOrLose = "Game Over!";
             ctx.fillStyle = "white";
-            ctx.fillRect(310, 242, 140, 30);
             SetStatus(winOrLose);
         } else {
             for (let i = 0; i < tetrominoCopy.length; i++) {
@@ -409,8 +477,6 @@ function CheckForCompletedRows() {
             score += rowsToDelete * 10;
             SetMessage();
         }
-        ctx.fillStyle = "white";
-        ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = "black";
         ctx.fillText(score.toString(), 310, 125);
 
