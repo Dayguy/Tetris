@@ -2,6 +2,14 @@ var canvas;
 var ctx;
 var gBArrayHeight = 20;
 var gBArrayWidth = 12;
+var motion;
+
+// Default to light theme
+var canvasCount = 0;
+var themeChange = false;
+var currentTheme = "Light";
+var fillColor = "white";
+var strokeColor = "#2A2D3E";
 
 // Starting point for Tetromino
 var startX = 4;
@@ -13,7 +21,6 @@ var winOrLose = "Playing...";
 var tetrisLogo;
 
 var stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
-
 var coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 var curTetromino = [[1,0], [0,1], [1,1], [2,1]];
 
@@ -24,7 +31,6 @@ var curTetrominoColor;
 var gameBoardArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 
 var selectionCircles = [];
-
 
 var DIRECTION = {
     IDLE: 0,
@@ -43,6 +49,7 @@ class Coordinates {
 }
 
 document.addEventListener("DOMContentLoaded", SetupCanvas);
+document.addEventListener("click", CheckSelection);
 
 function CreateCoordinateArray() {
     let i = 0, j = 0;
@@ -56,39 +63,54 @@ function CreateCoordinateArray() {
     }
 }
 
-function SetupCanvas() {
+function SetupCanvas(theme) {
+
+    if (theme === "undefined") {
+        theme = currentTheme;
+    }
+    canvasCount++;
 
     canvas = document.getElementById("my-canvas");
-    canvas.addEventListener("click", CheckSelection);
+    //canvas.addEventListener("click", CheckSelection);
 
     canvas.width = 936;
     canvas.height = 956;
 
     ctx = canvas.getContext("2d");
     ctx.font = "14px Arial";
-    ctx.scale(2,2);
+    ctx.scale(2,2)
 
-    
+    if (theme === "Dark") {
+        fillColor = "black";
+        strokeColor = "white";
 
-    ctx.fillStyle = "white";
+    } else if (theme === "Light") {
+        fillColor = "white";
+        strokeColor = "black"
+    }
+
+    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
+
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = "black";
     ctx.strokeRect(8, 8, 280, 462);
 
     tetrisLogo = new Image(161, 54);
     tetrisLogo.src = "tetrislogo.png";
 
-   window.onload = function() { // Original line above wouldn't work - not sure why???
-        DrawTetrisLogo();
+    if (canvasCount === 1) {
+        window.onload = function() { 
+            DrawTetrisLogo();
+        }
     }
 
-    ctx.fillStyle = "black";
-
     // Score & Level boxes
+    ctx.beginPath();
+    ctx.fillStyle = strokeColor;
     ctx.fillText("Score", 300, 88);
     ctx.strokeRect(300, 97, 110, 24);
     ctx.fillText(score.toString(), 310, 115);
+    ctx.stroke();
 
     ctx.fillText("Level", 420, 88);
     ctx.strokeRect(420, 97, 42, 24);
@@ -102,6 +124,7 @@ function SetupCanvas() {
     selectionCircles.forEach(function(circle) { circle.draw(); });
 
     // Message box
+    ctx.fillStyle = strokeColor;
     ctx.fillText("Message", 300, 270);
     ctx.strokeRect(300, 280, 161, 28);
     SetMessage("Good luck!");
@@ -111,14 +134,16 @@ function SetupCanvas() {
     ctx.strokeRect(300, 220, 161, 28);
     SetStatus(winOrLose);
 
-    ctx.fillStyle = "black";
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = strokeColor;
+
     ctx.fillText("Controls", 300, 330);
     ctx.strokeRect(300, 340, 161, 130);
     ctx.fillText("A / \u21E6 : Move Left", 310, 362);
     ctx.fillText("D / \u21E8 : Move Right", 310, 382);
     ctx.fillText("S / \u21E9 : Move Down", 310, 402);
     ctx.fillText("E / \u21E7 : Rotate Right", 310, 422);
-
+  
     document.addEventListener("keydown", HandleKeyPress);
 
     CreateTetrominos();
@@ -131,51 +156,47 @@ function SetupCanvas() {
 function CheckSelection(e) {
 
     let canvCoordinates = canvas.getBoundingClientRect(); 
-
-    let circX, circY, clickInfo = [];
     let clickX, clickY;
-    let x, y;
     let diffX, diffY;
-    let startLength;
-    let distance;
 
-    if (clickInfo.length == 2) { // after 2 clicks clear array
-      clickInfo.length = 0;
-    }
-
-    startLength = clickInfo.length;
+    // Determine click position in relation to canvas
+    clickX = (e.pageX - canvCoordinates.x) / 2;
+    clickY = Math.abs((e.pageY - canvCoordinates.y) / 2);
     
     // Loop over selection circles
     for (let i = 0; i < selectionCircles.length; i++) {
 
-        clickX = (e.pageX - canvCoordinates.x) / 2;
-        clickY = (e.pageY - canvCoordinates.y) / 2;
-
         // Get the differences in position
-        diffX = Math.abs(clickX - selectionCircles[i].x);  // console.log("Diff X: " + diffX);
-        diffY = Math.abs(clickY - selectionCircles[i].y);  // console.log("Diff Y: " + diffY);
+        diffX = Math.abs(clickX - selectionCircles[i].x);
+        diffY = Math.abs(clickY - selectionCircles[i].y);
 
-        // // Calculate distance
-        //distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-
-        if (diffX <= 6) {
-            clickInfo[clickInfo.length] = {
-                label: selectionCircles[i].label,
-                circX: selectionCircles[i].x,
-                circY: selectionCircles[i].y,
-                xPos: x,
-                yPos: y
-            };
+        if (diffX <= 6 && diffY <= 6) {
+                // Clear any existing selections
+                for (let a = 0; a < selectionCircles.length; a++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = fillColor;
+                    ctx.arc(selectionCircles[a].x, selectionCircles[a].y, selectionCircles[a].radius - 1, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = fillColor;
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                // Fill the clicked selection
+                ctx.beginPath();
+                ctx.strokeStyle = strokeColor;
+                ctx.fillStyle = strokeColor;
+                ctx.arc(selectionCircles[i].x, selectionCircles[i].y, selectionCircles[i].radius - 3, 0, 2 * Math.PI, false);
+                ctx.fill();
+                // if (selectionCircles[i].label != currentTheme) {
+                //     themeChange = true;
+                //      SetupCanvas(selectionCircles[i].label);
+                // }
         }
-
-        if (clickInfo.length != startLength) {
-            console.log("Clicked: " + clickInfo[clickInfo.length - 1].label);
-        }
-
     }
 }
 
 function SetStatus(status) {
+
+    clearInterval(motion);
     
     // Clear existing status
     ctx.clearRect(300, 220, 161, 28);
@@ -184,27 +205,27 @@ function SetStatus(status) {
         ctx.fillStyle = "green";
     } else if (status === "Game Over!") {
         SetMessage("Sorry!");
-        ctx.fillStyle = "#DC143C";
+        ctx.fillStyle = strokeColor;
     } else {
-        ctx.fillStyle = "black";
+        ctx.fillStyle = strokeColor;
     }
     ctx.beginPath();
     ctx.fillText(status, 310, 240);
+    ctx.stroke();
 }
 
 function CreateSelectionCircle (c) {
     c.radius = 6;
     c.draw = function() {
+       ctx.font = "14px Arial";
+       ctx.fillStyle = fillColor;
+       ctx.strokeStyle = strokeColor;
        ctx.beginPath();
        ctx.arc(c.x, c.y, c.radius, 300, 157, 2 * Math.PI, false);
-       ctx.fillStyle = 'white';
        ctx.fill();
-       ctx.lineWidth = 1;
-       ctx.strokeStyle = 'black';
-       ctx.stroke();
-       ctx.fillStyle = "black";
-       ctx.font = "14px Arial";
+       ctx.fillStyle = strokeColor;
        ctx.fillText(c.label, c.x + 10, c.y + 5);
+       ctx.stroke();
      };
    return c;
 }
@@ -231,7 +252,7 @@ function SetMessage(message) {
         ctx.fillStyle = "#DC143C";
         emoji = "\u{1F4A5}";
     } else {
-        ctx.fillStyle = "black";
+        ctx.fillStyle = strokeColor;
     }
 
     if (message === "Sorry!") {
@@ -245,6 +266,7 @@ function SetMessage(message) {
     } else {
         ctx.fillText(emoji + message, 310, 300);
     }  
+    ctx.stroke();
 }
 
 function DrawTetrisLogo() {
@@ -301,11 +323,10 @@ function MoveTetrominoDown() {
 }
 
 window.setInterval(function() {
-    if (winOrLose != "Game Over!") {
+    if (winOrLose != "Game Over!" && !themeChange) {
         MoveTetrominoDown();
     }
 }, 1000);
-
 
 function DrawTetromino() {
     for (let i = 0; i < curTetromino.length; i++) {
@@ -326,7 +347,7 @@ function DeleteTetromino() {
         gameBoardArray[x][y] = 0;
         let coorX = coordinateArray[x][y].x;
         let coorY = coordinateArray[x][y].y;
-        ctx.fillStyle = "white";
+        ctx.fillStyle = fillColor;
         ctx.fillRect(coorX, coorY, 21, 21);
     }
 }
@@ -396,7 +417,6 @@ function CheckForVerticalCollision() {
         // This contols the top of the board
         if (startY <= 2) {
             winOrLose = "Game Over!";
-            ctx.fillStyle = "white";
             SetStatus(winOrLose);
         } else {
             for (let i = 0; i < tetrominoCopy.length; i++) {
@@ -462,8 +482,11 @@ function CheckForCompletedRows() {
                 gameBoardArray[i][y] = 0;
                 let coorX = coordinateArray[i][y].x;
                 let coorY = coordinateArray[i][y].y;
-                ctx.fillStyle = "white";
+
+                ctx.strokeStyle = fillColor;
+                ctx.fillStyle = fillColor;
                 ctx.fillRect(coorX, coorY, 21, 21);
+                ctx.stroke();
             }
         }
     }
@@ -477,8 +500,14 @@ function CheckForCompletedRows() {
             score += rowsToDelete * 10;
             SetMessage();
         }
-        ctx.fillStyle = "black";
-        ctx.fillText(score.toString(), 310, 125);
+
+        // Clear existing score
+        ctx.fillStyle = fillColor;
+        ctx.clearRect(300, 97, 110, 24);
+
+        // Print updated score
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(score.toString(), 310, 115);
 
         MoveAllRowsDown(rowsToDelete, startOfDeletion);        
     }
@@ -504,7 +533,7 @@ function MoveAllRowsDown (rowsToDelete, startOfDeletion) {
                 stoppedShapeArray[x][i] = 0;
                 coorX = coordinateArray[x][i].x;
                 coorY = coordinateArray[x][i].y;
-                ctx.fillStyle = "white";
+                ctx.fillStyle = fillColor;
                 ctx.fillRect(coorX, coorY, 21, 21);
             }
         }
