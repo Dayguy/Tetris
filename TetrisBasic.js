@@ -41,6 +41,12 @@ var DIRECTION = {
 var direction;
 var msgToggle = 0;
 
+var STATE = {
+    STOPPED: 0,
+    PLAYING: 1,
+    PAUSED: 2 
+};
+
 class Coordinates {
     constructor(x,y) {
         this.x = x;
@@ -49,7 +55,7 @@ class Coordinates {
 }
 
 document.addEventListener("DOMContentLoaded", SetupCanvas);
-document.addEventListener("click", CheckSelection);
+document.addEventListener("click", CheckThemeSelection);
 
 function CreateCoordinateArray() {
     let i = 0, j = 0;
@@ -69,9 +75,7 @@ function SetupCanvas(theme) {
         theme = currentTheme;
     }
     canvasCount++;
-
     canvas = document.getElementById("my-canvas");
-    //canvas.addEventListener("click", CheckSelection);
 
     canvas.width = 936;
     canvas.height = 956;
@@ -122,6 +126,7 @@ function SetupCanvas(theme) {
     selectionCircles[selectionCircles.length] = CreateSelectionCircle({ x: 322, y: 170, label: "Light" });
     selectionCircles[selectionCircles.length] = CreateSelectionCircle({ x: 395, y: 170, label: "Dark" });
     selectionCircles.forEach(function(circle) { circle.draw(); });
+    SetSelectedTheme();
 
     // Message box
     ctx.fillStyle = strokeColor;
@@ -145,23 +150,17 @@ function SetupCanvas(theme) {
     ctx.fillText("E / \u21E7 : Rotate Right", 310, 422);
   
     document.addEventListener("keydown", HandleKeyPress);
-
-    CreateTetrominos();
-    CreateTetromino();
-
-    CreateCoordinateArray();
-    DrawTetromino();
 }
 
-function CheckSelection(e) {
+function CheckThemeSelection(e) {
 
-    let canvCoordinates = canvas.getBoundingClientRect(); 
+    let canvasCoordinates = canvas.getBoundingClientRect(); 
     let clickX, clickY;
     let diffX, diffY;
 
     // Determine click position in relation to canvas
-    clickX = (e.pageX - canvCoordinates.x) / 2;
-    clickY = Math.abs((e.pageY - canvCoordinates.y) / 2);
+    clickX = (e.pageX - canvasCoordinates.x) / 2;
+    clickY = Math.abs((e.pageY - canvasCoordinates.y) / 2);
     
     // Loop over selection circles
     for (let i = 0; i < selectionCircles.length; i++) {
@@ -171,25 +170,34 @@ function CheckSelection(e) {
         diffY = Math.abs(clickY - selectionCircles[i].y);
 
         if (diffX <= 6 && diffY <= 6) {
-                // Clear any existing selections
-                for (let a = 0; a < selectionCircles.length; a++) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = fillColor;
-                    ctx.arc(selectionCircles[a].x, selectionCircles[a].y, selectionCircles[a].radius - 1, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = fillColor;
-                    ctx.fill();
-                    ctx.stroke();
-                }
-                // Fill the clicked selection
-                ctx.beginPath();
-                ctx.strokeStyle = strokeColor;
-                ctx.fillStyle = strokeColor;
-                ctx.arc(selectionCircles[i].x, selectionCircles[i].y, selectionCircles[i].radius - 3, 0, 2 * Math.PI, false);
-                ctx.fill();
-                // if (selectionCircles[i].label != currentTheme) {
-                //     themeChange = true;
-                //      SetupCanvas(selectionCircles[i].label);
-                // }
+                currentTheme = selectionCircles[i].label;
+                ClearSelectedTheme();
+                SetSelectedTheme();
+        }
+    }
+}
+
+function ClearSelectedTheme () {
+    for (let a = 0; a < selectionCircles.length; a++) {
+        ctx.beginPath();
+        ctx.strokeStyle = fillColor;
+        ctx.arc(selectionCircles[a].x, selectionCircles[a].y, selectionCircles[a].radius - 1, 0, 2 * Math.PI, false);
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+
+function SetSelectedTheme () {
+    for (let c = 0; c < selectionCircles.length; c++) {
+        if (selectionCircles[c].label === currentTheme) {
+            console.log("Label: " + selectionCircles[c].label);
+            console.log("Theme: " + currentTheme);
+            ctx.beginPath();
+            ctx.strokeStyle = strokeColor;
+            ctx.fillStyle = strokeColor;
+            ctx.arc(selectionCircles[c].x, selectionCircles[c].y, selectionCircles[c].radius - 3, 0, 2 * Math.PI, false);
+            ctx.fill();
         }
     }
 }
@@ -309,6 +317,20 @@ function HandleKeyPress(key) {
         // E key, up arrow (Rotate)
         } else if (key.keyCode === 69 || key.keyCode === 38) { 
             RotateTetromino();
+        } else if (key.keyCode === 32) {
+            // TODO: Move to a StartGame() function
+            // Starts the game
+            let state = STATE.PLAYING;
+            CreateTetrominos();
+            CreateTetromino();
+            CreateCoordinateArray();
+            DrawTetromino();
+            window.setInterval(function() {
+                if (winOrLose != "Game Over!" && !themeChange) {
+                    MoveTetrominoDown();
+                }
+            }, 1000);
+        
         }
     }
 }
@@ -322,11 +344,7 @@ function MoveTetrominoDown() {
     }
 }
 
-window.setInterval(function() {
-    if (winOrLose != "Game Over!" && !themeChange) {
-        MoveTetrominoDown();
-    }
-}, 1000);
+
 
 function DrawTetromino() {
     for (let i = 0; i < curTetromino.length; i++) {
@@ -414,7 +432,7 @@ function CheckForVerticalCollision() {
     }
   
     if (collision) {
-        // This contols the top of the board
+        // This controls the top of the board
         if (startY <= 2) {
             winOrLose = "Game Over!";
             SetStatus(winOrLose);
