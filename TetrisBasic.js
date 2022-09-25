@@ -18,7 +18,9 @@ var startY = 0;
 var score = 0;
 var level = 1;
 var winOrLose = "Playing...";
+
 var tetrisLogo;
+var playIcon, pauseIcon, stopIcon;
 
 var stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 var coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
@@ -70,10 +72,6 @@ function CreateCoordinateArray() {
 }
 
 function SetupCanvas(theme) {
-
-    if (theme === "undefined") {
-        theme = currentTheme;
-    }
     canvasCount++;
     canvas = document.getElementById("my-canvas");
 
@@ -98,15 +96,6 @@ function SetupCanvas(theme) {
 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.strokeRect(8, 8, 280, 462);
-
-    tetrisLogo = new Image(161, 54);
-    tetrisLogo.src = "tetrislogo.png";
-
-    if (canvasCount === 1) {
-        window.onload = function() { 
-            DrawTetrisLogo();
-        }
-    }
 
     // Score & Level boxes
     ctx.beginPath();
@@ -144,13 +133,37 @@ function SetupCanvas(theme) {
 
     ctx.fillText("Controls", 300, 330);
     ctx.strokeRect(300, 340, 161, 130);
-    ctx.fillText("A / \u21E6 : Move Left", 310, 362);
-    ctx.fillText("D / \u21E8 : Move Right", 310, 382);
-    ctx.fillText("S / \u21E9 : Move Down", 310, 402);
-    ctx.fillText("E / \u21E7 : Rotate Right", 310, 422);
-  
+    ctx.fillText("A / \u21E6 : Move Left", 320, 362);
+    ctx.fillText("D / \u21E8 : Move Right", 318, 382);
+    ctx.fillText("S / \u21E9 : Move Down", 318, 402);
+    ctx.fillText("E / \u21E7 : Rotate Right", 316, 422);
+
+    // Images
+    stopIcon = new Image(30, 30);
+    stopIcon.src = "images/stop.png";
+    pauseIcon = new Image(30, 30);
+    pauseIcon.src = "images/pause.png"
+    playIcon = new Image(30, 30);
+    playIcon.src = "images/play.png"
+    tetrisLogo = new Image(161, 54);
+    tetrisLogo.src = "images/tetrislogo.png";
+
+    if (canvasCount === 1) {
+        window.onload = function() { 
+            DrawImages();
+        }
+    }
+
     document.addEventListener("keydown", HandleKeyPress);
 }
+
+function DrawImages() {
+    ctx.drawImage(tetrisLogo, 300, 8, 161, 54);
+    ctx.drawImage(stopIcon, 319, 432, 30, 30);
+    ctx.drawImage(pauseIcon, 362, 432, 30, 30);
+    ctx.drawImage(playIcon, 407, 432, 30, 30);
+}
+
 
 function CheckThemeSelection(e) {
 
@@ -191,8 +204,6 @@ function ClearSelectedTheme () {
 function SetSelectedTheme () {
     for (let c = 0; c < selectionCircles.length; c++) {
         if (selectionCircles[c].label === currentTheme) {
-            console.log("Label: " + selectionCircles[c].label);
-            console.log("Theme: " + currentTheme);
             ctx.beginPath();
             ctx.strokeStyle = strokeColor;
             ctx.fillStyle = strokeColor;
@@ -277,10 +288,6 @@ function SetMessage(message) {
     ctx.stroke();
 }
 
-function DrawTetrisLogo() {
-    ctx.drawImage(tetrisLogo, 300, 8, 161, 54);
-}
-
 function DrawTetromino() {
     for(let i = 0; i < curTetromino.length; i++) {
         let x = curTetromino[i][0] + startX;
@@ -343,8 +350,6 @@ function MoveTetrominoDown() {
         DrawTetromino();  
     }
 }
-
-
 
 function DrawTetromino() {
     for (let i = 0; i < curTetromino.length; i++) {
