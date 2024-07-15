@@ -12,3 +12,5 @@ TO DO:
     Fix bonus message, clear after time period -- FIXED
     Add keybindings for arrow keys - DONE
     Fix bug where horizontal motion overwrites collision piece -- FIXED
+
+Test
